@@ -19,8 +19,15 @@ class CogniteAPI:
             return self.total_uploads
 
     def retieve_assets_list(self):
-        return [dict(external_id=1, source="Sautervision", metadata=dict(sensorId="RT001", TS_name="ONE")),
-                dict(external_id=2, source="Sautervision", metadata=dict(sensorId="RT002", TS_name="TWO")),
+        return [dict(external_id="Drammensveien_145_1", source="Sautervision",
+                     metadata=dict(sensorId="RT001", TS_name="ONE")),
+                dict(external_id="Drammensveien_145_2", source="Sautervision",
+                     metadata=dict(sensorId="RT002", TS_name="TWO")),
+                dict(external_id="Storgata_33_1", source="Sautervision",
+                     metadata=dict(sensorId="RT001", TS_name="ONE")),
+                dict(external_id="Storgata_33_2", source="Sautervision",
+                     metadata=dict(sensorId="RT002", TS_name="TWO")),
                 dict(external_id=3, source="GoIoT", metadata=dict(sensorId="JV001", TS_name="THREE")),
-                dict(external_id=4, source="GoIoT", metadata=dict(sensorId="JV002", TS_name="FOUR"))]
+                dict(external_id=4, source="GoIoT", metadata=dict(sensorId="JV002", TS_name="FOUR")),
+                dict(external_id=5, source="Compute", metadata=dict(sensorId="calc", TS_name="FIVE"))]
 
