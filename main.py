@@ -3,13 +3,10 @@ from time import monotonic
 from datetime import timedelta
 # modules
 from modules.cognite.cogniteAPI import CogniteService
-from modules.sautervision.sautervisionAPI import *
-from modules.goiot.goiotAPI import *
+from utils.login import Login
 
 
 class DataExtractor:
-    modules = dict(Sautervision=SauterVisionAPI,
-                   GoIoT=GoiotAPI)
 
     def __init__(self, client_info):
         self.start_time = monotonic()
@@ -30,8 +27,7 @@ class DataExtractor:
                 self.cognite_assets.append(sensor)
 
     def login_client_endpoint(self):
-        cdf_client = self.modules[self.client_system](self)
-        self.client_service = cdf_client.login()
+        self.client_service = Login(self).request_login()
 
     def extract_data(self):
         for sensor in self.cognite_assets:
@@ -64,5 +60,6 @@ def pipeline(system, env_vars):
 if __name__ == '__main__':
     # ARGS
     system = "Sautervision"
-    env_vars = dict(passw="1234", username="user")
-    pipeline(system, env_vars)
+    env_vars_Drammensveien = dict(passw="1234", username="user", ip="213.52.59.36")
+    env_vars_Storgata = dict(passw="123434", username="user_34", ip="109.74.177.206:8080")
+    pipeline(system, env_vars_Drammensveien)
