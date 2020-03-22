@@ -1,19 +1,16 @@
 import requests
 from modules.sautervision.sautervisionAPI import *
 from modules.goiot.goiotAPI import *
-from modules.compute.do_stuff import *
+from modules.compute.computeStuffAPI import *
 logger = logging.getLogger("utils login")
 
 
 class Login:
-    modules = dict(Sautervision=SauterVisionAPI,
-                   GoIoT=GoiotAPI,
-                   Compute=ComputeStuff)
 
-    def __init__(self, extractor):
-        self.system = extractor.client_system
-        self.client_service = self.modules[self.system](extractor)
-        self.login_details = self.client_service.login_details()
+    def __init__(self, system, building, client_service):
+        self.system = system
+        self.client_service = client_service
+        self.login_details = self.client_service.login_details(building)
         if self.login_details:
             self.request_login()
 
@@ -48,5 +45,5 @@ class Login:
             logger.error(str(err))
         else:
             logger.info(f"Successful login to {self.system} with this url: {url}")
-            self.client_service.login_response = r
+            #self.client_service.login_response = r todo: hva skal dette være i virkeligheten
             return self.client_service

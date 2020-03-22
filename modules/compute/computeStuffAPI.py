@@ -1,13 +1,12 @@
 import logging
 
 
-class ComputeStuff:
+class ComputeStuffAPI:
 
-    def __init__(self, extractor):
-        self.extractor = extractor
+    def __init__(self):
         self.logger = logging.getLogger("Compute")
 
-    def login_details(self):
+    def login_details(self, env_vars):# TODO: denne må du forklare bedre
         return False
 
     def compute_this(self):
