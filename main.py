@@ -27,7 +27,7 @@ class DataExtractor:
                 self.cognite_assets.append(sensor)
 
     def login_client_endpoint(self):
-        self.client_service = Login(self).request_login()
+        self.client_service = Login(self).client_service
 
     def extract_data(self):
         for sensor in self.cognite_assets:

@@ -16,11 +16,6 @@ class Login:
         self.login_details = self.client_service.login_details()
         if self.login_details:
             self.request_login()
-        else:
-            self.return_service()
-
-    def return_service(self):
-        return self.client_service
 
     def request_login(self):
         r = "YOU SHALL NOT PASS!!!!!!!!"
@@ -29,6 +24,7 @@ class Login:
             if self.login_details.get("secret_file"):
                 if self.client_service.pem_file == "secret":
                     r = "YOU MAY ENTER FILTHY HUMAN"
+                    url = self.login_details.get("url")
                 # r = session.post(url=self.client_service.url,
                 #                  data=self.client_service.payload,
                 #                  headers=self.client_service.headers,
