@@ -8,11 +8,14 @@ from modules.goiot.goiotAPI import *
 
 
 class DataExtractor:
+    modules = dict(Sautervision=SauterVisionAPI,
+                   GoIoT=GoiotAPI)
+
     def __init__(self, client_info):
         self.start_time = monotonic()
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger("Data Extractor")
-        self.client_system, self.login_class, self.env_vars = client_info
+        self.client_system, self.env_vars = client_info
         self.cognite_service = CogniteService()
         self.client_service = None
         self.cognite_assets = []
@@ -27,7 +30,7 @@ class DataExtractor:
                 self.cognite_assets.append(sensor)
 
     def login_client_endpoint(self):
-        cdf_client = eval(self.login_class)
+        cdf_client = self.modules[self.client_system](self)
         self.client_service = cdf_client.login()
 
     def extract_data(self):
@@ -47,8 +50,8 @@ class DataExtractor:
                          f"Objects with no data or with failure: {failed_uploads}")
 
 
-def pipeline(system, client_class, env_vars):
-    extractor = DataExtractor((system, client_class, env_vars))
+def pipeline(system, env_vars):
+    extractor = DataExtractor((system, env_vars))
     extractor.login_cognite_client()
     extractor.retrieve_assets()
     if not extractor.cognite_assets:
@@ -61,6 +64,5 @@ def pipeline(system, client_class, env_vars):
 if __name__ == '__main__':
     # ARGS
     system = "Sautervision"
-    login_class = "SauterVisionAPI(self)"
     env_vars = dict(passw="1234", username="user")
-    pipeline(system, login_class, env_vars)
+    pipeline(system, env_vars)
