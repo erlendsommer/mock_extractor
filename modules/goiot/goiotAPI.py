@@ -2,15 +2,14 @@ import logging
 
 
 class GoiotAPI:
-    def __init__(self, extractor):
-        self.extractor = extractor
+    def __init__(self, env_vars):
         self.logger = logging.getLogger("GoIoT")
-        self.password = extractor.env_vars.get("passw")
-        self.username = extractor.env_vars.get("username")
+        self.password = env_vars.get("passw")
+        self.username = env_vars.get("username")
 
     def login(self):
         if self.password and self.username:
-            return self
+            return True
 
     def client_request(self):
         if self.password and self.username:

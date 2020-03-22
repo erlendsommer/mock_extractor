@@ -2,65 +2,40 @@ import logging
 from time import monotonic
 from datetime import timedelta
 # modules
-from modules.cognite.cogniteAPI import CogniteService
+from modules.cognite.cogniteAPI import CogniteAPI
 from modules.sautervision.sautervisionAPI import *
 from modules.goiot.goiotAPI import *
 
-
-class DataExtractor:
-    def __init__(self, client_info):
-        self.start_time = monotonic()
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger("Data Extractor")
-        self.client_system, self.login_class, self.env_vars = client_info
-        self.cognite_service = CogniteService()
-        self.client_service = None
-        self.cognite_assets = []
-        self.data_points = []
-
-    def login_cognite_client(self):
-        self.cognite_service.login()
-
-    def retrieve_assets(self):
-        for sensor in self.cognite_service.retieve_assets_list():
-            if self.client_system in sensor.get("source"):
-                self.cognite_assets.append(sensor)
-
-    def login_client_endpoint(self):
-        cdf_client = eval(self.login_class)
-        self.client_service = cdf_client.login()
-
-    def extract_data(self):
-        for sensor in self.cognite_assets:
-            data_point = self.client_service.data_extract(sensor)
-            if data_point:
-                self.data_points.append(data_point)
-
-    def upload(self):
-        if self.data_points:
-            self.cognite_service.upload_data_points(self.data_points)
-        failed_uploads = (len(self.cognite_assets) - self.cognite_service.total_uploads)
-        session_time = timedelta(seconds=monotonic() - self.start_time)
-        self.logger.info(f"Session time:{str(session_time)} \n"
-                         f"Total number of objects in list: {len(self.cognite_assets)} \n"
-                         f"Total number of objects uploaded to CDF: {self.cognite_service.total_uploads} \n"
-                         f"Objects with no data or with failure: {failed_uploads}")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Data Extractor")
 
 
-def pipeline(system, client_class, env_vars):
-    extractor = DataExtractor((system, client_class, env_vars))
-    extractor.login_cognite_client()
-    extractor.retrieve_assets()
-    if not extractor.cognite_assets:
-        extractor.logger.error("no assets in list")
-    extractor.login_client_endpoint()
-    extractor.extract_data()
-    extractor.upload()
+def get_client_api_implementation(system, env_vars):
+    if system == "Sautervision":
+        return SauterVisionAPI(env_vars)
+    elif system == "GoIoT":
+        return GoiotAPI(env_vars)
+    else:
+        raise Exception("mangler system")
 
 
 if __name__ == '__main__':
     # ARGS
+    start_time = monotonic()
     system = "Sautervision"
-    login_class = "SauterVisionAPI(self)"
     env_vars = dict(passw="1234", username="user")
-    pipeline(system, login_class, env_vars)
+    cognite_service = CogniteAPI()
+    cognite_service.login()
+    assets = list(filter(lambda x: system in x.get("source"), cognite_service.retieve_assets_list()))
+    failed_uploads = -1
+    if assets:
+        client_service = get_client_api_implementation(system, env_vars)
+        client_service.login()
+        data_points = list(map(lambda x: client_service.data_extract(x), assets))
+        cognite_service.upload_data_points(data_points)
+        failed_uploads = (len(data_points) - cognite_service.total_uploads)
+    session_time = timedelta(seconds=monotonic() - start_time)
+    logger.info(f"Session time:{str(session_time)} \n"
+                f"Total number of objects in list: {len(assets)} \n"
+                f"Total number of objects uploaded to CDF: {cognite_service.total_uploads} \n"
+                f"Objects with no data or with failure: {failed_uploads}")
